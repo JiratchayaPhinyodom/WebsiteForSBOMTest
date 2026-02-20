@@ -1,5 +1,5 @@
 requests==2.31.0
-fastapi==0.129.0
-uvicorn==0.41.0
-pandas==3.0.1
-numpy==2.4.2
+urllib3==1.26.15
+PyYAML==5.4
+flask==1.0
+django==3.0
