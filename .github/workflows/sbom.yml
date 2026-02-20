@@ -1,4 +1,4 @@
-name: Generate Python SBOM
+name: Generate Python SBOM & Security Scan
 
 on:
   push:
@@ -10,13 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
       - name: Install CycloneDX
         run: pip install cyclonedx-bom
 
       - name: Generate SBOM
         run: cyclonedx-py requirements -i requirements.txt -o bom.json
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Scan for vulnerabilities
+        run: pip-audit --fail-on high
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
