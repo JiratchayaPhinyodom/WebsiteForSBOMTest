@@ -86,3 +86,9 @@ pip-audit --format json -o report.json
 * **Early detection of vulnerable packages**
 * **Traceable, auditable dependency information**
 * **Supports compliance and DevSecOps practices**
+
+## 📚 References
+
+* **CycloneDX Python SBOM GitHub: https://github.com/CycloneDX/gh-python-generate-sbom**
+
+* **pip-audit GitHub: https://github.com/pypa/pip-audit**
