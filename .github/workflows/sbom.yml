@@ -26,8 +26,7 @@ jobs:
         run: pip install pip-audit
 
       - name: Scan for vulnerabilities and generate report
-        run: |
-          pip-audit -r report.json --fail-on high
+        run: pip-audit --format json -o report.json --fail-on high
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
