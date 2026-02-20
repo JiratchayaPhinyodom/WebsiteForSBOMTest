@@ -2,22 +2,21 @@ name: Generate Python SBOM
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   sbom:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Install CycloneDX
+        run: pip install cyclonedx-bom
 
       - name: Generate SBOM
-        uses: CycloneDX/gh-python-generate-sbom@v2
-        with:
-          input: requirements.txt
-          output: bom.json
-          format: json
+        run: cyclonedx-py requirements -i requirements.txt -o bom.json
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
