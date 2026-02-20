@@ -1,129 +1,88 @@
-# WebsiteForSBOMTest
+# Python Project SBOM & Automated Security
 
-This is a simple Python project demonstrating how to generate a **Software Bill of Materials (SBOM)** using **CycloneDX** and GitHub Actions.
-
----
-
-## Project Structure
-
-```
-
-sample-sbom-project/
-├── app.py
-├── requirements.txt
-└── .github/
-└── workflows/
-└── sbom.yml
-
-````
-
-- `app.py` – Simple Python app using requests, FastAPI, Uvicorn, NumPy, and pandas.  
-- `requirements.txt` – Lists project dependencies.  
-- `.github/workflows/sbom.yml` – GitHub Actions workflow to generate SBOM.
+This project demonstrates **SBOM generation** and **automated vulnerability scanning** for a Python project using **CycloneDX** and **pip-audit**.
 
 ---
 
-## Dependencies
+## 📦 Software Bill of Materials (SBOM)
 
-```text
-requests==2.31.0
-fastapi==0.129.0
-uvicorn==0.41.0
-pandas==3.0.1
-numpy==2.4.2
-````
+We generate a **CycloneDX SBOM (`bom.json`)** for all Python dependencies, including direct and transitive packages.
+The SBOM provides:
 
----
+* **Package name and version**
+* **Type** (library/application)
+* **Dependency relationships**
+* **Metadata** about the SBOM generator (tool, version, timestamp)
 
-## GitHub Actions Workflow
-
-The workflow automatically:
-
-1. Runs on every push to the main branch (or can be manually triggered).
-2. Checks out the repository.
-3. Installs dependencies and/or uses `requirements.txt`.
-4. Generates an SBOM (`bom.json`) using the **CycloneDX Python tool**.
-5. Uploads the SBOM as an artifact for download.
-
-**Key YAML Snippet:**
-
-```yaml
-name: Generate Python SBOM
-
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
-
-jobs:
-  sbom:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install CycloneDX
-        run: pip install cyclonedx-bom
-      - name: Generate SBOM
-        run: cyclonedx-py requirements -i requirements.txt -o bom.json
-      - name: Upload SBOM artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sbom-file
-          path: bom.json
-```
+**Purpose:**
+The SBOM enables **supply chain transparency**, **license compliance**, and **auditing**. It tells exactly what is installed in your project so security tools can analyze it.
 
 ---
 
-## How to Run Locally
+## 🔒 Vulnerability Scanning with pip-audit
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
+We use **`pip-audit`** to scan all installed packages for **known vulnerabilities**. This produces a **`report.json`** containing:
 
-# Install CycloneDX tool
-pip install cyclonedx-bom
-
-# Generate SBOM
-cyclonedx-py requirements -i requirements.txt -o bom.json
-```
-
----
-
-## SBOM Output
-
-The workflow generates a file `bom.json` (CycloneDX 1.6 format) that includes:
-
-* Project dependencies (`requests`, `fastapi`, `uvicorn`, `pandas`, `numpy`)
-* Dependency versions
-* Package URLs (PURL)
-* Metadata about the SBOM tool
+* **Dependencies** scanned
+* **Vulnerabilities** detected, including CVE/GHSA IDs, descriptions, and fix versions
 
 Example:
 
 ```json
 {
-  "components": [
-    {"name": "fastapi", "version": "0.129.0"},
-    {"name": "numpy", "version": "2.4.2"},
-    {"name": "pandas", "version": "3.0.1"},
-    {"name": "requests", "version": "2.31.0"},
-    {"name": "uvicorn", "version": "0.41.0"}
+  "name": "requests",
+  "version": "2.31.0",
+  "vulns": [
+    {
+      "id": "CVE-2024-35195",
+      "fix_versions": ["2.32.0"],
+      "description": "TLS verification may remain disabled for subsequent requests..."
+    }
   ]
 }
 ```
 
----
+**Relationship to SBOM:**
 
-## Notes
-
-* GitHub Action uses `actions/upload-artifact@v4` (latest supported version).
-* Workflow can be triggered manually via the **Actions** tab.
-* SBOM can be used for **supply chain security**, vulnerability scanning, or artifact auditing.
+* The **SBOM lists what packages exist**
+* The **pip-audit report analyzes those packages for risk**
+* Together, they give **full supply chain security visibility**
 
 ---
 
-## References
+## ⚙️ CI/CD Integration
 
-* [CycloneDX Python Tool](https://github.com/CycloneDX/cyclonedx-python)
-* [CycloneDX SBOM Specification](https://cyclonedx.org/specification/)
-* [GitHub Actions Documentation](https://docs.github.com/actions)
+Using **GitHub Actions**, the workflow:
 
+1. Installs dependencies from `requirements.txt`
+2. Generates the SBOM (`bom.json`)
+3. Runs `pip-audit` and produces a vulnerability report (`report.json`)
+4. Automatically **fails the workflow** if vulnerabilities exist (e.g., HIGH/CRITICAL severity)
+5. Uploads both **SBOM and vulnerability report** as artifacts
+
+This ensures **automated security checks** every time code is pushed.
+
+---
+
+## 🔧 How to Run Locally
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Generate SBOM
+cyclonedx-py requirements -i requirements.txt -o bom.json
+
+# Run vulnerability scan
+pip install pip-audit
+pip-audit --format json -o report.json
+```
+
+---
+
+## 🔹 Key Benefits
+
+* **Automated supply chain security**
+* **Early detection of vulnerable packages**
+* **Traceable, auditable dependency information**
+* **Supports compliance and DevSecOps practices**
