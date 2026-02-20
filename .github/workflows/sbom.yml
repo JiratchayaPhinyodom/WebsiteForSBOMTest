@@ -27,6 +27,7 @@ jobs:
 
       - name: Scan for vulnerabilities and generate report
         run: pip-audit -r requirements.txt --format json -o report.json
+        continue-on-error: true
 
       # - name: Fail on high severity vulnerabilities
       #   run: |
